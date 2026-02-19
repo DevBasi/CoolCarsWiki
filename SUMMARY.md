@@ -1,0 +1,15 @@
+# Summary
+
+* [Introduction](README.md)
+* [Installation](installation.md)
+* [Global Configuration](config.md)
+* [Items](items.md)
+* [Sounds](sounds.md)
+* [Creating a Car](creating-a-car/README.md)
+  * [Components](creating-a-car/components.md)
+  * [Performance](creating-a-car/performance.md)
+  * [Behavior](creating-a-car/behavior.md)
+  * [Localization](creating-a-car/localization.md)
+* [Commands](commands.md)
+* [Permissions](permissions.md)
+* [Placeholders](placeholders.md)
