@@ -6,9 +6,9 @@
     <b>Advanced physics, modular customization, and high performance.</b>
   </p>
 
-  [![Minecraft Version](https://img.shields.io/badge/Minecraft%201.21+-brightgreen?style=for-the-badge&logo=minecraft&logoColor=white)](https://www.minecraft.net/)
-  [![Platform](https://img.shields.io/badge/Paper%20/%20Bukkit-blue?style=for-the-badge&logo=spigotmc&logoColor=white)](https://papermc.io/)
-  [![Wiki](https://img.shields.io/badge/Wiki-orange?style=for-the-badge&logo=wikipedia&logoColor=white)](https://coolcars.mintlify.app/README)
+  [![Minecraft Version](https://img.shields.io/badge/Minecraft%201.21+-62B06F?style=for-the-badge&logo=minecraft&logoColor=white)](https://www.minecraft.net/)
+  [![Platform](https://img.shields.io/badge/Paper%20/%20Bukkit-3498DB?style=for-the-badge&logo=spigotmc&logoColor=white)](https://papermc.io/)
+  [![Wiki](https://img.shields.io/badge/Wiki-95A5A6?style=for-the-badge&logo=wikipedia&logoColor=white)](https://coolcars.mintlify.app/README)
 
   <br />
 
