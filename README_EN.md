@@ -1,6 +1,6 @@
 <div align="center">
-  <img src="https://mintlify.s3.us-west-1.amazonaws.com/coolcars/logo/light.svg" width="220" alt="CoolCars Logo">
-  <h1>CoolCars — Minecraft Vehicle System</h1>
+  <img src="https://mintcdn.com/coolcars/Nf4BiqjFcs6SEFCk/images/coolcars/logo-full.png?w=1100&fit=max&auto=format&n=Nf4BiqjFcs6SEFCk&q=85&s=519a7b4c36beba6e8c42eca5b5685fd6" width="600" alt="CoolCars Logo">
+  <h1>Vehicle System for Minecraft</h1>
   
   <p align="center">
     <b>Advanced physics, modular customization, and high performance.</b>
@@ -8,7 +8,7 @@
 
   [![Minecraft Version](https://img.shields.io/badge/Minecraft-1.21+-62B06F?style=for-the-badge&logo=minecraft&logoColor=white)](https://www.minecraft.net/)
   [![Platform](https://img.shields.io/badge/Paper%20/%20Spigot-3498DB?style=for-the-badge&logo=spigotmc&logoColor=white)](https://papermc.io/)
-  [![Wiki](https://img.shields.io/badge/Wiki-Documentation-BDC3C7?style=for-the-badge&logo=wikipedia-w&logoColor=white)](https://coolcars.mintlify.app/README)
+  [![Wiki](https://img.shields.io/badge/Wiki-Documentation-gray?style=flat-square)](https://coolcars.mintlify.app/README)
 
   <br />
 
