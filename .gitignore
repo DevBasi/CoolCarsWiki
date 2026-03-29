@@ -1,0 +1,28 @@
+# Folders
+.gradle/
+build/
+bin/
+target/
+out/
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Plugin specific
+CoolCars.jar
+plugins/
+logs/
+world/
+config.yml
