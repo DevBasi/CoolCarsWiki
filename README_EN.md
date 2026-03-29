@@ -8,7 +8,7 @@
 
   [![Minecraft Version](https://img.shields.io/badge/Minecraft-1.21+-62B06F?style=for-the-badge&logo=minecraft&logoColor=white)](https://www.minecraft.net/)
   [![Platform](https://img.shields.io/badge/Paper%20/%20Spigot-3498DB?style=for-the-badge&logo=spigotmc&logoColor=white)](https://papermc.io/)
-  [![License](https://img.shields.io/badge/License-MIT-F1C40F?style=for-the-badge)](LICENSE)
+  [![Wiki](https://img.shields.io/badge/Wiki-Documentation-BDC3C7?style=for-the-badge&logo=wikipedia-w&logoColor=white)](https://coolcars.mintlify.app/README)
 
   <br />
 
