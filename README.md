@@ -1,6 +1,6 @@
 <div align="center">
   <img src="https://mintcdn.com/coolcars/Nf4BiqjFcs6SEFCk/images/coolcars/logo-full.png?w=1100&fit=max&auto=format&n=Nf4BiqjFcs6SEFCk&q=85&s=519a7b4c36beba6e8c42eca5b5685fd6" width="600" alt="CoolCars Logo">
-  <h1>Система транспорта для Minecraft</h1>
+  <h1>CoolCars — Система транспорта для Minecraft</h1>
   
   <p align="center">
     <b>Продвинутая физика, модульная кастомизация и высокая производительность.</b>
