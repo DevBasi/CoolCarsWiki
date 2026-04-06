@@ -59,6 +59,7 @@ import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
@@ -181,12 +182,20 @@ public final class MainCars extends JavaPlugin implements Listener {
     private boolean menuFillEmptySlots;
     private Material menuFillerMaterial;
     private String menuFillerName;
+    private int menuFillerCustomModelData;
     private Material menuEngineMaterialOn;
     private Material menuEngineMaterialOff;
+    private int menuEngineCustomModelDataOn;
+    private int menuEngineCustomModelDataOff;
     private Material menuLightsMaterialOn;
     private Material menuLightsMaterialOff;
+    private int menuLightsCustomModelDataOn;
+    private int menuLightsCustomModelDataOff;
     private Material menuTrunkMaterial;
+    private int menuTrunkCustomModelData;
     private final Map<String, Map<String, String>> menuLocalizedTexts =
+        new HashMap<>();
+    private final Map<String, Map<String, List<String>>> menuLocalizedLores =
         new HashMap<>();
 
     private NamespacedKey canisterLitersKey;
@@ -780,6 +789,16 @@ public final class MainCars extends JavaPlugin implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
+    public void onTrunkClick(InventoryClickEvent event) {
+        Inventory top = event.getView().getTopInventory();
+        if (!(top.getHolder() instanceof CarTrunkHolder holder)) {
+            return;
+        }
+        // No cancellation here, we want players to be able to move items in the trunk.
+        // We sync the contents on close.
+    }
+
+    @EventHandler(ignoreCancelled = true)
     public void onCarMenuClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) {
             return;
@@ -847,9 +866,29 @@ public final class MainCars extends JavaPlugin implements Listener {
         }
         if (menuTrunkEnabled && slot == menuSlotTrunk) {
             player.closeInventory();
-            player.openInventory(car.getTrunkInventory());
+            String trunkTitle = colorize(menuText(player, "trunk", "menu.car.trunk"));
+            Inventory trunkInv = Bukkit.createInventory(
+                new CarTrunkHolder(car.getVehicleId(), car.getTrunkInventory()),
+                car.getTrunkInventory().getSize(),
+                trunkTitle
+            );
+            trunkInv.setContents(car.getTrunkInventory().getContents());
+            player.openInventory(trunkInv);
             playSoundAtCar(car, soundGlovebox);
         }
+    }
+
+    @EventHandler
+    public void onTrunkClose(InventoryCloseEvent event) {
+        if (!(event.getPlayer() instanceof Player player)) {
+            return;
+        }
+        Inventory top = event.getView().getTopInventory();
+        if (!(top.getHolder() instanceof CarTrunkHolder holder)) {
+            return;
+        }
+        holder.inventory.setContents(top.getContents());
+        player.updateInventory();
     }
 
     @EventHandler
@@ -944,7 +983,14 @@ public final class MainCars extends JavaPlugin implements Listener {
                 msg(player, "trunk.too-far");
                 return;
             }
-            player.openInventory(trunkCar.getTrunkInventory());
+            String trunkTitle = colorize(menuText(player, "trunk", "menu.car.trunk"));
+            Inventory trunkInv = Bukkit.createInventory(
+                new CarTrunkHolder(trunkCar.getVehicleId(), trunkCar.getTrunkInventory()),
+                trunkCar.getTrunkInventory().getSize(),
+                trunkTitle
+            );
+            trunkInv.setContents(trunkCar.getTrunkInventory().getContents());
+            player.openInventory(trunkInv);
             playSoundAtCar(trunkCar, soundGlovebox);
             return;
         }
@@ -1304,6 +1350,10 @@ public final class MainCars extends JavaPlugin implements Listener {
             "car.menu.style.filler.name",
             "&8 "
         );
+        this.menuFillerCustomModelData = cfg().getInt(
+            "car.menu.style.filler.custom-model-data",
+            0
+        );
         this.menuEngineMaterialOn = parseMaterial(
             cfg().getString(
                 "car.menu.style.items.engine.material-on",
@@ -1318,6 +1368,14 @@ public final class MainCars extends JavaPlugin implements Listener {
             ),
             Material.RED_DYE
         );
+        this.menuEngineCustomModelDataOn = cfg().getInt(
+            "car.menu.style.items.engine.custom-model-data-on",
+            0
+        );
+        this.menuEngineCustomModelDataOff = cfg().getInt(
+            "car.menu.style.items.engine.custom-model-data-off",
+            0
+        );
         this.menuLightsMaterialOn = parseMaterial(
             cfg().getString(
                 "car.menu.style.items.lights.material-on",
@@ -1329,9 +1387,21 @@ public final class MainCars extends JavaPlugin implements Listener {
             cfg().getString("car.menu.style.items.lights.material-off", "COAL"),
             Material.COAL
         );
+        this.menuLightsCustomModelDataOn = cfg().getInt(
+            "car.menu.style.items.lights.custom-model-data-on",
+            0
+        );
+        this.menuLightsCustomModelDataOff = cfg().getInt(
+            "car.menu.style.items.lights.custom-model-data-off",
+            0
+        );
         this.menuTrunkMaterial = parseMaterial(
             cfg().getString("car.menu.style.items.trunk.material", "CHEST"),
             Material.CHEST
+        );
+        this.menuTrunkCustomModelData = cfg().getInt(
+            "car.menu.style.items.trunk.custom-model-data",
+            0
         );
         loadMenuLocalization();
 
@@ -5725,9 +5795,11 @@ public final class MainCars extends JavaPlugin implements Listener {
 
     private void loadMenuLocalization() {
         menuLocalizedTexts.clear();
+        menuLocalizedLores.clear();
         for (String lang : List.of("en", "ru")) {
             String normalized = i18n.normalizeLang(lang);
             Map<String, String> texts = new HashMap<>();
+            Map<String, List<String>> lores = new HashMap<>();
             for (String key : List.of(
                 "title",
                 "engine-on",
@@ -5738,15 +5810,41 @@ public final class MainCars extends JavaPlugin implements Listener {
                 "toggle-hint",
                 "trunk-hint"
             )) {
-                String text = getConfigStringStrict(
-                    "car.menu.localization." + normalized + "." + key
-                );
+                String textPath = "car.menu.localization." + normalized + "." + key;
+                String text = getConfigStringStrict(textPath);
                 if (text != null && !text.isBlank()) {
                     texts.put(key, text);
                 }
+
+                String lorePath = "car.menu.localization." + normalized + "." + key + "-lore";
+                List<String> lore = cfg().getStringList(lorePath);
+                if (lore != null && !lore.isEmpty()) {
+                    lores.put(key, lore);
+                }
             }
             menuLocalizedTexts.put(normalized, texts);
+            menuLocalizedLores.put(normalized, lores);
         }
+    }
+
+    private List<String> menuLore(Player player, String key, List<String> fallback) {
+        String lang = i18n.resolvePlayerLang(player);
+        String normalizedLang = i18n.normalizeLang(lang);
+        Map<String, List<String>> localized = menuLocalizedLores.get(normalizedLang);
+        if (localized != null) {
+            List<String> value = localized.get(key);
+            if (value != null && !value.isEmpty()) {
+                return value;
+            }
+        }
+        Map<String, List<String>> en = menuLocalizedLores.get("en");
+        if (en != null) {
+            List<String> value = en.get(key);
+            if (value != null && !value.isEmpty()) {
+                return value;
+            }
+        }
+        return fallback;
     }
 
     private String menuText(Player player, String key, String i18nFallbackKey) {
@@ -7045,12 +7143,12 @@ public final class MainCars extends JavaPlugin implements Listener {
         holder.setInventory(inv);
 
         if (menuFillEmptySlots) {
-            ItemStack filler = new ItemStack(menuFillerMaterial);
-            ItemMeta fillerMeta = filler.getItemMeta();
-            if (fillerMeta != null) {
-                fillerMeta.setDisplayName(colorize(menuFillerName));
-                filler.setItemMeta(fillerMeta);
-            }
+            ItemStack filler = makeMenuItem(
+                menuFillerMaterial,
+                menuFillerName,
+                Collections.emptyList(),
+                menuFillerCustomModelData
+            );
             for (int i = 0; i < inv.getSize(); i++) {
                 inv.setItem(i, filler);
             }
@@ -7069,7 +7167,16 @@ public final class MainCars extends JavaPlugin implements Listener {
                         ? "menu.car.engine.on"
                         : "menu.car.engine.off"
                 ),
-                List.of(menuText(player, "toggle-hint", "menu.car.toggle.hint"))
+                menuLore(
+                    player,
+                    car.isEngineRunning() ? "engine-on" : "engine-off",
+                    List.of(
+                        menuText(player, "toggle-hint", "menu.car.toggle.hint")
+                    )
+                ),
+                car.isEngineRunning()
+                    ? menuEngineCustomModelDataOn
+                    : menuEngineCustomModelDataOff
             )
         );
         inv.setItem(
@@ -7085,7 +7192,16 @@ public final class MainCars extends JavaPlugin implements Listener {
                         ? "menu.car.lights.on"
                         : "menu.car.lights.off"
                 ),
-                List.of(menuText(player, "toggle-hint", "menu.car.toggle.hint"))
+                menuLore(
+                    player,
+                    car.isHeadlightsOn() ? "lights-on" : "lights-off",
+                    List.of(
+                        menuText(player, "toggle-hint", "menu.car.toggle.hint")
+                    )
+                ),
+                car.isHeadlightsOn()
+                    ? menuLightsCustomModelDataOn
+                    : menuLightsCustomModelDataOff
             )
         );
         if (menuTrunkEnabled) {
@@ -7094,9 +7210,14 @@ public final class MainCars extends JavaPlugin implements Listener {
                 makeMenuItem(
                     menuTrunkMaterial,
                     menuText(player, "trunk", "menu.car.trunk"),
-                    List.of(
-                        menuText(player, "trunk-hint", "menu.car.trunk.hint")
-                    )
+                    menuLore(
+                        player,
+                        "trunk",
+                        List.of(
+                            menuText(player, "trunk-hint", "menu.car.trunk.hint")
+                        )
+                    ),
+                    menuTrunkCustomModelData
                 )
             );
         }
@@ -7107,7 +7228,8 @@ public final class MainCars extends JavaPlugin implements Listener {
     private ItemStack makeMenuItem(
         Material material,
         String name,
-        List<String> lore
+        List<String> lore,
+        int customModelData
     ) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
@@ -7120,6 +7242,9 @@ public final class MainCars extends JavaPlugin implements Listener {
             outLore.add(colorize(line));
         }
         meta.setLore(outLore);
+        if (customModelData != 0) {
+            meta.setCustomModelData(customModelData);
+        }
         item.setItemMeta(meta);
         return item;
     }
@@ -7201,6 +7326,21 @@ public final class MainCars extends JavaPlugin implements Listener {
             this.cooldownTicks = cooldownTicks;
             this.requireMoving = requireMoving;
             this.preventOverlap = preventOverlap;
+        }
+    }
+
+    private static final class CarTrunkHolder implements InventoryHolder {
+        private final UUID carId;
+        private final Inventory inventory;
+
+        private CarTrunkHolder(UUID carId, Inventory inventory) {
+            this.carId = carId;
+            this.inventory = inventory;
+        }
+
+        @Override
+        public Inventory getInventory() {
+            return inventory;
         }
     }
 

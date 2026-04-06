@@ -5,9 +5,9 @@ menu.car.engine.off: "&cEngine: OFF"
 menu.car.lights.on: "&eHeadlights: ON"
 menu.car.lights.off: "&7Headlights: OFF"
 # Trunk button name in menu (first line in tooltip)
-menu.car.trunk: "&6Open trunk"
+menu.car.trunk: "&6Trunk"
 # Trunk button hint (second line)
-menu.car.trunk.hint: "&7Open trunk"
+menu.car.trunk.hint: "&7Click to open"
 menu.car.toggle.hint: "&7Click to toggle"
 # Trunk inventory GUI title
 menu.trunk.title: "&8Trunk"

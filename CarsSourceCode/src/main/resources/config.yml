@@ -1,4 +1,4 @@
-﻿config-version: 4
+config-version: 4
 
 cars:
   default-model: volga
@@ -38,9 +38,10 @@ ui:
       format-lang-key: "actionbar.repair"
 
 language:
-  global: true
+  global: false
   default: en
-  use-player-locale: false
+  use-player-locale: true
+  use-player-locale-async: true
 
 storage:
   autosave:
@@ -64,52 +65,52 @@ database:
     params: "useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
 
   telemetry:
-    # EN: Extended per-car telemetry/state snapshots in database.
+    # Extended per-car telemetry/state snapshots in database.
     enabled: true
-    # EN: Hard limits to keep payloads bounded and DB-friendly.
+    # Hard limits to keep payloads bounded and DB-friendly.
     max-model-key-length: 96
     max-model-name-length: 128
     max-owner-name-length: 64
     events:
-      # EN: Save event timeline rows (crash, hard_landing, engine toggles, etc.).
+      # Save event timeline rows (crash, hard_landing, engine toggles, etc.).
       enabled: true
-      # EN: Max text size for event details and compact damage snapshot text.
+      # Max text size for event details and compact damage snapshot text.
       max-details-length: 1024
-      # EN: Max event type key length.
+      # Max event type key length.
       max-type-length: 64
 
 commands:
   car-heal:
-    # EN: Enable admin command /cars heal <car-uuid> <target> <amount|full>
+    # Enable admin command /cars heal <car-uuid> <target> <amount|full>
     enabled: true
-    # EN: Allow usage from server console.
+    # Allow usage from server console.
     allow-console: true
 
 keys:
-  # EN: Master switch for the car key system.
+  # Master switch for the car key system.
   enabled: true
-  # EN: If true, engine start is validated by the key rules below.
+  # If true, engine start is validated by the key rules below.
   require-key-to-start-engine: true
-  # EN: If true, engine stop also requires a matching key in inventory.
+  # If true, engine stop also requires a matching key in inventory.
   require-key-to-stop-engine: true
-  # EN: Owner can start their own car without carrying a key.
+  # Owner can start their own car without carrying a key.
   allow-owner-start-without-key: true
-  # EN: If true, non-owners may start a car when they have a matching key.
+  # If true, non-owners may start a car when they have a matching key.
   allow-non-owner-use-key: false
-  # EN: Search key in full inventory. If false, only main hand/off-hand are checked.
+  # Search key in full inventory. If false, only main hand/off-hand are checked.
   check-entire-inventory: true
 
   item:
-    # EN: Material used for generated key item (/cars key give ...).
+    # Material used for generated key item (/cars key give ...).
     material: TRIPWIRE_HOOK
-    # EN: Display name placeholders: {model} {model_key} {car_uuid} {owner_name} {owner_uuid}
+    # Display name placeholders: {model} {model_key} {car_uuid} {owner_name} {owner_uuid}
     name: "&6Key for {model}"
-    # EN: Lore placeholders are the same as in the key name.
+    # Lore placeholders are the same as in the key name.
     lore:
       - "&7Vehicle: &f{model}"
       - "&7UUID: &f{car_uuid}"
       - "&7Owner: &f{owner_name}"
-    # EN: Per-language key name/lore overrides by lang system.
+    # Per-language key name/lore overrides.
     localized:
       en:
         name: "&6Key for {model}"
@@ -117,13 +118,49 @@ keys:
           - "&7Vehicle: &f{model}"
           - "&7UUID: &f{car_uuid}"
           - "&7Owner: &f{owner_name}"
-      ru:
-        name: "&6Ключ от {model}"
-        lore:
-          - "&7Машина: &f{model}"
-          - "&7UUID: &f{car_uuid}"
-          - "&7Владелец: &f{owner_name}"
-    # EN: Set null or remove this line to disable custom model data.
+    # Set null or remove this line to disable custom model data.
     custom-model-data: null
-    # EN: Make key item unbreakable.
+    # Make key item unbreakable.
     unbreakable: true
+
+car:
+  menu:
+    # Number of rows in the car menu (1-6).
+    rows: 3
+    # Enable or disable the trunk button in the menu.
+    trunk-button-enabled: true
+    slots:
+      # Inventory slot indices (0-indexed).
+      engine: 11
+      lights: 15
+      trunk: 13
+    style:
+      # Fill empty slots with a filler item.
+      fill-empty-slots: true
+      filler:
+        material: BLACK_STAINED_GLASS_PANE
+        name: "&8 "
+        custom-model-data: 0
+      items:
+        engine:
+          material-on: LIME_DYE
+          material-off: RED_DYE
+          custom-model-data-on: 0
+          custom-model-data-off: 0
+        lights:
+          material-on: GLOWSTONE_DUST
+          material-off: COAL
+          custom-model-data-on: 0
+          custom-model-data-off: 0
+        trunk:
+          material: CHEST
+          custom-model-data: 0
+    localization:
+      en:
+        # title: "Car Control"
+        # engine-on: "&aEngine: ON"
+        # engine-on-lore:
+        #   - "&7Click to stop the engine"
+        # engine-off: "&cEngine: OFF"
+        # engine-off-lore:
+        #   - "&7Click to start the engine"

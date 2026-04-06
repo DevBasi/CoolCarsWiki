@@ -57,6 +57,52 @@ keys:
     # Make key item unbreakable.
     unbreakable: true
 
+car:
+  menu:
+    # Number of rows in the car menu (1 to 6).
+    rows: 3
+    # Enable or disable the trunk button in the menu.
+    trunk-button-enabled: true
+    slots:
+      # Inventory slot indices (starting from 0).
+      engine: 11
+      lights: 15
+      trunk: 13
+    style:
+      # Fill empty slots with a filler item.
+      fill-empty-slots: true
+      filler:
+        # Material for filler (e.g. gray stained glass pane).
+        material: BLACK_STAINED_GLASS_PANE
+        # Display name of filler (usually a space).
+        name: "&8 "
+        # CustomModelData for filler (0 to disable).
+        custom-model-data: 0
+      items:
+        engine:
+          # Material when engine is running.
+          material-on: LIME_DYE
+          # Material when engine is stopped.
+          material-off: RED_DYE
+          # CustomModelData when engine is running.
+          custom-model-data-on: 0
+          # CustomModelData when engine is stopped.
+          custom-model-data-off: 0
+        lights:
+          # Material when lights are on.
+          material-on: GLOWSTONE_DUST
+          # Material when lights are off.
+          material-off: COAL
+          # CustomModelData when lights are on.
+          custom-model-data-on: 0
+          # CustomModelData when lights are off.
+          custom-model-data-off: 0
+        trunk:
+          # Material for the trunk button.
+          material: CHEST
+          # CustomModelData for the trunk button.
+          custom-model-data: 0
+
 sounds:
   events:
     landing:

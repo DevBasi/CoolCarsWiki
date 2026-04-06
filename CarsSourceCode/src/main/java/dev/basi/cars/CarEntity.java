@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import io.papermc.paper.entity.TeleportFlag;
 import org.bukkit.Bukkit;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
@@ -1745,13 +1746,17 @@ public final class CarEntity {
             (float) yawDegrees,
             0.0F
         );
-        root.teleport(postRoot);
+        root.teleport(postRoot, TeleportFlag.EntityState.RETAIN_PASSENGERS);
         lastKnownLocation = postRoot.clone();
+        
+        // Ensure all utility points move smoothly with the root in the same tick.
         fuelPointStand.teleport(
-            postRoot.clone().add(rotateYaw(fuelPointOffset, yawDegrees))
+            postRoot.clone().add(rotateYaw(fuelPointOffset, yawDegrees)),
+            TeleportFlag.EntityState.RETAIN_PASSENGERS
         );
         trunkPointStand.teleport(
-            postRoot.clone().add(rotateYaw(trunkPointOffset, yawDegrees))
+            postRoot.clone().add(rotateYaw(trunkPointOffset, yawDegrees)),
+            TeleportFlag.EntityState.RETAIN_PASSENGERS
         );
         if (frontDamageStand != null) {
             frontDamageStand.teleport(
@@ -1759,7 +1764,8 @@ public final class CarEntity {
                     .clone()
                     .add(
                         rotateYaw(settings.damage.frontHitboxOffset, yawDegrees)
-                    )
+                    ),
+                TeleportFlag.EntityState.RETAIN_PASSENGERS
             );
         }
         if (rearDamageStand != null) {
@@ -1768,17 +1774,19 @@ public final class CarEntity {
                     .clone()
                     .add(
                         rotateYaw(settings.damage.rearHitboxOffset, yawDegrees)
-                    )
+                    ),
+                TeleportFlag.EntityState.RETAIN_PASSENGERS
             );
         }
         for (int i = 0; i < wheelDamageStands.length; i++) {
             if (wheelDamageStands[i] != null) {
                 wheelDamageStands[i].teleport(
-                    postRoot.clone().add(rotateYaw(wheelOffsets[i], yawDegrees))
+                    postRoot.clone().add(rotateYaw(wheelOffsets[i], yawDegrees)),
+                    TeleportFlag.EntityState.RETAIN_PASSENGERS
                 );
             }
         }
-        interaction.teleport(postRoot);
+        interaction.teleport(postRoot, TeleportFlag.EntityState.RETAIN_PASSENGERS);
     }
 
     public void updateVisuals() {
@@ -1799,7 +1807,7 @@ public final class CarEntity {
             .clone()
             .add(rotateYaw(bodyOffset, yawDegrees))
             .toLocation(world);
-        bodyDisplay.teleport(bodyLoc);
+        bodyDisplay.teleport(bodyLoc, TeleportFlag.EntityState.RETAIN_PASSENGERS);
         bodyDisplay.setTransformation(
             new Transformation(
                 new Vector3f(0.0F, 0.0F, 0.0F),
@@ -1813,7 +1821,10 @@ public final class CarEntity {
             .clone()
             .add(rotateYaw(steeringWheelOffset, yawDegrees))
             .toLocation(world);
-        steeringWheelDisplay.teleport(wheelHandleLoc);
+        steeringWheelDisplay.teleport(
+            wheelHandleLoc,
+            TeleportFlag.EntityState.RETAIN_PASSENGERS
+        );
         Quaternionf steeringWheelRot = new Quaternionf()
             .rotateY((float) Math.toRadians(-yawDegrees))
             .rotateX((float) combinedPitchRadians)
@@ -1861,7 +1872,10 @@ public final class CarEntity {
                 .clone()
                 .add(wheelOffsetRotated)
                 .toLocation(world);
-            wheelDisplays[i].teleport(wheelLoc);
+            wheelDisplays[i].teleport(
+                wheelLoc,
+                TeleportFlag.EntityState.RETAIN_PASSENGERS
+            );
 
             boolean frontAxle = i < 2;
             float steerYaw = 0.0F;
@@ -1926,9 +1940,23 @@ public final class CarEntity {
                 .clone()
                 .add(seatOffset)
                 .toLocation(world);
-            seatLoc.setYaw((float) yawDegrees);
-            seatLoc.setPitch(0.0F);
-            seats[i].teleport(seatLoc);
+            
+            if (seats[i].getPassengers().isEmpty()) {
+                seatLoc.setYaw((float) yawDegrees);
+                seatLoc.setPitch(0.0F);
+                seats[i].teleport(seatLoc, TeleportFlag.EntityState.RETAIN_PASSENGERS);
+            } else {
+                // If occupied, use a mix of hard teleport and relative rotation to avoid camera jitter
+                // On 1.21.1 clients, hard-setting yaw/pitch causes the camera to "snap" back if not handled correctly.
+                // However, moving only the location (Relative flags) can cause desync during turns.
+                // We use TeleportFlag.EntityState.RETAIN_PASSENGERS for the location sync.
+                seats[i].teleport(
+                    seatLoc, 
+                    TeleportFlag.EntityState.RETAIN_PASSENGERS,
+                    TeleportFlag.Relative.YAW,
+                    TeleportFlag.Relative.PITCH
+                );
+            }
         }
 
         updateHeadlights(rootPos);

@@ -57,6 +57,52 @@ keys:
     # Делает предмет ключа неразрушаемым.
     unbreakable: true
 
+car:
+  menu:
+    # Количество строк в меню машины (от 1 до 6).
+    rows: 3
+    # Включить или выключить кнопку багажника в меню.
+    trunk-button-enabled: true
+    slots:
+      # Индексы слотов в инвентаре (начиная с 0).
+      engine: 11
+      lights: 15
+      trunk: 13
+    style:
+      # Заполнять пустые слоты предметом-заполнителем.
+      fill-empty-slots: true
+      filler:
+        # Материал для заполнителя (например, серая панель).
+        material: BLACK_STAINED_GLASS_PANE
+        # Имя заполнителя (обычно пробел).
+        name: "&8 "
+        # CustomModelData для заполнителя (0 для отключения).
+        custom-model-data: 0
+      items:
+        engine:
+          # Материал при включенном двигателе.
+          material-on: LIME_DYE
+          # Материал при выключенном двигателе.
+          material-off: RED_DYE
+          # CustomModelData при включенном двигателе.
+          custom-model-data-on: 0
+          # CustomModelData при выключенном двигателе.
+          custom-model-data-off: 0
+        lights:
+          # Материал при включенных фарах.
+          material-on: GLOWSTONE_DUST
+          # Материал при выключенных фарах.
+          material-off: COAL
+          # CustomModelData при включенных фарах.
+          custom-model-data-on: 0
+          # CustomModelData при выключенных фарах.
+          custom-model-data-off: 0
+        trunk:
+          # Материал кнопки багажника.
+          material: CHEST
+          # CustomModelData для кнопки багажника.
+          custom-model-data: 0
+
 sounds:
   events:
     landing:
